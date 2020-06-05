@@ -254,7 +254,7 @@ class Settings extends Component {
       left,
     } = this.state;
 
-    setCookie('players', []);
+    setCookie('players', undefined);
 
     this.setState({
       left: left.concat(right),
