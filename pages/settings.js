@@ -27,7 +27,7 @@ import Config from '../config/config';
 import { FETCH_PLAYERS, FETCHING_LATEST_STATS_PLAYERS } from '../redux/constants/players.constants';
 
 // Utils
-import { getCookie, setCookie } from '../utils/cookie';
+import { getCookie, setCookie, removeCookie } from '../utils/cookie';
 import { formatDate } from '../utils/commonHelpers';
 
 // Components
@@ -254,7 +254,7 @@ class Settings extends Component {
       left,
     } = this.state;
 
-    setCookie('players', undefined);
+    removeCookie('players');
 
     this.setState({
       left: left.concat(right),
