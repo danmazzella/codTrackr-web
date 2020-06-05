@@ -6,7 +6,7 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "prod": "pm2 start npm --name \"next\" -- start"
+    "prod": "pm2 start npm --name \"Web\" -- start"
   },
   "dependencies": {
     "@material-ui/core": "^4.9.9",
