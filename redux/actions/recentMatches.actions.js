@@ -36,7 +36,7 @@ export const fetchMatches = (modeType = 'all', pageNumber = 1, pageSize = 25, pl
   try {
     dispatch(isFetchingMatchesAction(true));
 
-    const res = await fetch(`${apiUrl}/api/matches?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&players=${players}`);
+    const res = await fetch(`${apiUrl}/api/matches?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}`);
     const data = await res.json();
 
     dispatch(fetchMatchesAction(data.matches, data.totalCount, modeType, pageNumber, players));

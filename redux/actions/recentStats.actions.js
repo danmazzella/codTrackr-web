@@ -36,7 +36,7 @@ export const fetchRecentStats = (modeType = 'all', pageNumber = 1, pageSize = 25
   try {
     dispatch(isFetchingRecentStatsAction(true));
 
-    const res = await fetch(`${apiUrl}/api/player/stats/recent?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&sortColumn=${sortColumn}&sortDir=${sortDir}&players=${players}`);
+    const res = await fetch(`${apiUrl}/api/player/stats/recent?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&sortColumn=${sortColumn}&sortDir=${sortDir}&players=${encodeURIComponent(players)}`);
     const data = await res.json();
 
     dispatch(fetchRecentStatsAction(data.stats, data.totalCount, modeType, pageNumber, players));

@@ -41,7 +41,7 @@ export const fetchTopFive = (modeType = 'all', _monthFilter = undefined, pageNum
       monthFilter = JSON.stringify(monthFilter);
     }
 
-    const res = await fetch(`${apiUrl}/api/matches/topFive?modeType=${modeType}&monthFilter=${monthFilter}&page=${pageNumber}&pageSize=${pageSize}&players=${players}`);
+    const res = await fetch(`${apiUrl}/api/matches/topFive?modeType=${modeType}&monthFilter=${monthFilter}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}`);
     const data = await res.json();
 
     dispatch(fetchTopFiveAction(data.userMatches, data.totalCount, modeType, pageNumber, players));

@@ -34,7 +34,7 @@ export const fetchLifetimeStats = (modeType = 'br', pageNumber = 0, pageSize = 2
   try {
     dispatch(isFetchingLifetimeStatsAction(true));
 
-    const res = await fetch(`${apiUrl}/api/player/stats/lifetime?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&sortColumn=${sortColumn}&sortDir=${sortDir}&players=${players}`);
+    const res = await fetch(`${apiUrl}/api/player/stats/lifetime?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&sortColumn=${sortColumn}&sortDir=${sortDir}&players=${encodeURIComponent(players)}`);
     const data = await res.json();
 
     dispatch(fetchLifetimeStatsAction(data.stats, data.totalCount, modeType));
