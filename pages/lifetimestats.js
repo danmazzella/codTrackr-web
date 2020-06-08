@@ -18,18 +18,23 @@ import Typography from '@material-ui/core/Typography';
 // Material UI Icons
 
 // Utils
-import { getCookie } from '../utils/cookie';
+import { getCookie, setCookie, removeCookie } from '../utils/cookie';
 
 // Components
 import Layout from '../components/layout';
 import ListBody from '../components/ListBody';
 import Drawer from '../components/drawer';
 
+// Constants
 import { FETCH_LIFETIME_STATS } from '../redux/constants/lifetimeStats.constants';
 
+// Actions
 import {
   fetchLifetimeStats,
 } from '../redux/actions/lifetimeStats.actions';
+
+// Dialogs
+import ColumnSelectModal from '../components/columnSelectDialog';
 
 const styles = (theme) => ({
   formControl: {
@@ -47,13 +52,19 @@ const headCells = [
     id: 'gamertag', label: 'Gamertag',
   },
   {
-    id: 'kills', label: 'Kills',
+    id: 'gamesPlayed', label: 'Games Played',
   },
   {
-    id: 'downs', label: 'Downs',
+    id: 'timePlayed', label: 'Time Played (Hr)',
   },
   {
-    id: 'deaths', label: 'Deaths',
+    id: 'kills', label: 'Kills', isHidden: true,
+  },
+  {
+    id: 'downs', label: 'Downs', isHidden: true,
+  },
+  {
+    id: 'deaths', label: 'Deaths', isHidden: true,
   },
   {
     id: 'kdRatio', label: 'K/D Ratio',
@@ -62,16 +73,25 @@ const headCells = [
     id: 'killsPerGame', label: 'Kills Per Game',
   },
   {
-    id: 'gamesPlayed', label: 'Games Played',
-  },
-  {
-    id: 'timePlayed', label: 'Time Played (Hr)',
+    id: 'downsPerGame', label: 'Downs Per Game', isHidden: true,
   },
   {
     id: 'wins', label: 'BR Wins',
   },
   {
     id: 'winPercent', label: 'BR Win %',
+  },
+  {
+    id: 'topFive', label: 'Top 5', isHidden: true,
+  },
+  {
+    id: 'topFivePercent', label: 'Top 5%',
+  },
+  {
+    id: 'topTen', label: 'Top 10', isHidden: true,
+  },
+  {
+    id: 'topTenPercent', label: 'Top 10%',
   },
   {
     id: 'avgOcaScore', label: 'Avg oCaScore',
@@ -112,15 +132,20 @@ const getTableRows = (lifetimeStats) => {
   lifetimeStats.map((stats) => {
     const rowData = [
       stats.gamertag,
+      stats.gamesPlayed,
+      calculateTimePlayed(stats.timePlayed),
       stats.kills,
       stats.downs,
       stats.deaths,
       stats.kdRatio.toFixed(2),
       stats.killsPerGame.toFixed(2),
-      stats.gamesPlayed,
-      calculateTimePlayed(stats.timePlayed),
+      stats.downsPerGame.toFixed(2),
       stats.wins,
       (stats.winPercent * 100).toFixed(2).toString().concat('%'),
+      stats.topFive,
+      (stats.topFivePercent * 100).toFixed(2).toString().concat('%'),
+      stats.topTen,
+      (stats.topTenPercent * 100).toFixed(2).toString().concat('%'),
       stats.avgOcaScore.toFixed(2),
       stats.highestOcaScore,
     ];
@@ -138,7 +163,8 @@ class LifetimeStats extends Component {
 
     this.state = {
       data: [],
-      modeTypeFilter: 'br',
+      headers: headCells,
+      openColumnSelect: false,
       pageNumber: 1,
       pageSize: 25,
       players,
@@ -177,8 +203,15 @@ class LifetimeStats extends Component {
     const data = getTableRows(nextProps.lifetimeStats);
 
     if (nextProps.type === FETCH_LIFETIME_STATS) {
+      const cookieHeaders = getCookie('columns-lifetime');
+      let tmpHeaders = headCells;
+      if (cookieHeaders !== undefined && cookieHeaders !== null) {
+        tmpHeaders = JSON.parse(cookieHeaders);
+      }
+
       return {
         data,
+        headers: tmpHeaders,
         isFetching: nextProps.isFetching,
         lifetimeStats: nextProps.lifetimeStats,
         totalCount: nextProps.totalCount,
@@ -213,29 +246,6 @@ class LifetimeStats extends Component {
     currentUrlParams.delete(paramName);
     router.push(`${window.location.pathname}?${currentUrlParams.toString()}`);
   }
-
-  // handleChange(event) {
-  //   const {
-  //     fetchLifetimeStats: propsFetchLifetimeStats,
-  //   } = this.props;
-
-  //   const {
-  //     pageSize,
-  //     players,
-  //   } = this.state;
-
-  //   const newModeType = event.target.value;
-
-  //   this.setState({
-  //     modeTypeFilter: newModeType,
-  //     pageNumber: 1,
-  //   });
-
-  //   this.removeFromSearchParam('page');
-  //   this.addToSearchParam('modeType', newModeType);
-
-  //   propsFetchLifetimeStats(newModeType, 1, pageSize, players);
-  // }
 
   handleSortChange = (newSortColumn, newSortDir) => {
     const {
@@ -291,69 +301,66 @@ class LifetimeStats extends Component {
     propsFetchLifetimeStats(modeType, 1, newPageSize, players, sortColumn, sortDir);
   }
 
+  openColumnSelect = () => {
+    this.setState({
+      openColumnSelect: true,
+    });
+  }
+
+  handleModalIsClosing = () => {
+    this.setState({
+      openColumnSelect: false,
+    });
+  }
+
+  headerCheckChanged = (header, headerIdx) => {
+    const { headers: stateHeaders } = this.state;
+    stateHeaders[headerIdx].isHidden = !stateHeaders[headerIdx].isHidden;
+    this.setState({
+      headers: stateHeaders,
+    });
+    setCookie('columns-lifetime', stateHeaders);
+  }
+
   render() {
     const {
       data,
-      modeTypeFilter,
-      pageSize,
+      headers,
+      openColumnSelect,
     } = this.state;
 
     const {
-      classes,
       totalCount,
     } = this.props;
 
     return (
-      <Layout>
-        <Drawer>
-          <Container maxWidth="lg">
-            <Box my={4}>
-              {/* <Grid
-                container
-                direction="row"
-                justify="space-between"
-                alignItems="center"
-                style={{ paddingLeft: 18, paddingRight: 12 }}
-              >
-                <Typography
-                  variant="h4"
-                  component="h1"
-                  gutterBottom
-                >
-                  Lifetime Stats
-                </Typography>
-                <FormControl
-                  variant="outlined"
-                  className={classes.formControl}
-                >
-                  <InputLabel id="demo-simple-select-outlined-label">Match Type</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-outlined-label"
-                    id="demo-simple-select-outlined"
-                    value={modeTypeFilter}
-                    onChange={this.handleChange}
-                    label="matchType"
-                  >
-                    <MenuItem value="all">All</MenuItem>
-                    <MenuItem value="solos">Battle Royal</MenuItem>
-                    <MenuItem value="threes">Plunder</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid> */}
-              <ListBody
-                data={data}
-                changePage={this.handlePageChange}
-                changePageSize={this.handlePageSizeChange}
-                changeSort={this.handleSortChange}
-                collapsable={false}
-                headers={headCells}
-                toolbarName="Battle Royal Stats"
-                totalCount={totalCount}
-              />
-            </Box>
-          </Container>
-        </Drawer>
-      </Layout>
+      <div>
+        <Layout>
+          <Drawer>
+            <Container maxWidth="lg">
+              <Box my={4}>
+                <ListBody
+                  data={data}
+                  changePage={this.handlePageChange}
+                  changePageSize={this.handlePageSizeChange}
+                  changeSort={this.handleSortChange}
+                  collapsable={false}
+                  headers={headers}
+                  openColumnSelect={this.openColumnSelect}
+                  toolbarName="Battle Royal Stats"
+                  totalCount={totalCount}
+                />
+              </Box>
+            </Container>
+          </Drawer>
+        </Layout>
+        <ColumnSelectModal
+          modalIsClosing={() => this.handleModalIsClosing()}
+          open={openColumnSelect}
+          headerCheckChanged={(header, headerIdx) => this.headerCheckChanged(header, headerIdx)}
+          headers={headers}
+        />
+      </div>
     );
   }
 }

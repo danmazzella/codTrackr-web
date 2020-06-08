@@ -91,11 +91,21 @@ class ListBody extends React.Component {
     });
   }
 
-  addRowData = (row, index) => (
-    <TableCell component="th" scope="row" key={row + index}>
+  tableCellStyle = (headCell, index, headers) => {
+    if (headers[index].isHidden === true) {
+      return {
+        display: 'none',
+      };
+    }
+
+    return {};
+  }
+
+  addRowData = (row, index, headers) => (
+    <TableCell component="th" scope="row" key={row + index} style={this.tableCellStyle(row, index, headers)}>
       {row}
     </TableCell>
-  )
+  );
 
   render() {
     const {
@@ -110,8 +120,9 @@ class ListBody extends React.Component {
       classes,
       collapsable,
       collapseLayout,
-      headers,
       data,
+      headers,
+      openColumnSelect,
       toolbarName,
     } = this.props;
 
@@ -129,6 +140,7 @@ class ListBody extends React.Component {
         <Paper className={classes.paper}>
           <ListToolbar
             toolbarName={toolbarName}
+            openColumnSelect={openColumnSelect}
           />
           <TableContainer>
             <Table
@@ -152,7 +164,7 @@ class ListBody extends React.Component {
                         .setState({ collapsedRow: collapsedRow === index ? null : index })}
                       key={row[0].concat(index)}
                     >
-                      {row.map((rowData) => this.addRowData(rowData, index))}
+                      {row.map((rowData, rowIdx) => this.addRowData(rowData, rowIdx, headers))}
                     </TableRow>,
                     (
                       collapsable ? (
@@ -190,8 +202,8 @@ class ListBody extends React.Component {
             onChangePage={this.handleChangePage}
             onChangeRowsPerPage={this.handleChangeRowsPerPage}
           />
-        </Paper >
-      </div >
+        </Paper>
+      </div>
     );
   }
 }
@@ -205,6 +217,7 @@ ListBody.propTypes = {
   collapseLayout: PropTypes.any,
   collapsable: PropTypes.bool,
   headers: PropTypes.array.isRequired,
+  openColumnSelect: PropTypes.func,
   toolbarName: PropTypes.string.isRequired,
   totalCount: PropTypes.number.isRequired,
 };
@@ -212,6 +225,7 @@ ListBody.propTypes = {
 ListBody.defaultProps = {
   collapseLayout: undefined,
   collapsable: false,
+  openColumnSelect: undefined,
 };
 
 export default (withStyles(styles))(ListBody);

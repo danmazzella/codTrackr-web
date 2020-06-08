@@ -8,7 +8,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
-import FilterListIcon from '@material-ui/icons/FilterList';
+import ViewColumnIcon from '@material-ui/icons/ViewColumn';
 
 const styles = (theme) => ({
   root: {
@@ -28,6 +28,8 @@ class ListToolbar extends React.Component {
   render() {
     const {
       classes,
+      hasColumnSelect,
+      openColumnSelect,
       toolbarName,
     } = this.props;
 
@@ -39,11 +41,13 @@ class ListToolbar extends React.Component {
           {toolbarName}
         </Typography>
 
-        {/* <Tooltip title="Filter list">
+        <Tooltip title="Filter list" style={openColumnSelect === undefined ? { display: 'none' } : {}}>
           <IconButton aria-label="filter list">
-            <FilterListIcon />
+            <ViewColumnIcon
+              onClick={openColumnSelect}
+            />
           </IconButton>
-        </Tooltip> */}
+        </Tooltip>
       </Toolbar>
     );
   }
@@ -51,10 +55,12 @@ class ListToolbar extends React.Component {
 
 ListToolbar.propTypes = {
   classes: PropTypes.object.isRequired,
+  openColumnSelect: PropTypes.func,
   toolbarName: PropTypes.string.isRequired,
 };
 
 ListToolbar.defaultProps = {
+  openColumnSelect: undefined,
 };
 
 export default withStyles(styles)(ListToolbar);
