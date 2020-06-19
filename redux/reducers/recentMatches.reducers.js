@@ -5,6 +5,7 @@ const initialState = {
   matches: [],
   modeType: 'all',
   totalCount: 0,
+  topTenFilter: false,
 };
 
 const fetchMatchesReducer = (state = initialState, action) => {
@@ -25,6 +26,7 @@ const fetchMatchesReducer = (state = initialState, action) => {
         pageNumber: parseInt(action.pageNumber, 10),
         players: action.players,
         totalCount: action.totalCount,
+        topTenFilter: action.topTenFilter,
         type: FETCH_MATCHES,
       };
 

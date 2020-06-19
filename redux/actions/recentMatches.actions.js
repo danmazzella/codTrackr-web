@@ -7,16 +7,22 @@ if (process.env.NODE_ENV === 'development') {
   apiUrl = config.dev.api.url;
 }
 
-export const fetchMatchesAction = (matches, totalCount, modeType, pageNumber, players) => {
-  return {
-    modeType,
-    type: FETCH_MATCHES,
-    pageNumber,
-    payload: matches,
-    totalCount,
-    players,
-  };
-};
+export const fetchMatchesAction = (
+  matches,
+  totalCount,
+  modeType,
+  pageNumber,
+  players,
+  topTenFilter,
+) => ({
+  modeType,
+  type: FETCH_MATCHES,
+  pageNumber,
+  payload: matches,
+  totalCount,
+  topTenFilter,
+  players,
+});
 
 export const isFetchingMatchesAction = (isFetching) => (
   {
@@ -32,14 +38,14 @@ export const restoreState = (fetchMatchesState) => (
   }
 );
 
-export const fetchMatches = (modeType = 'all', pageNumber = 1, pageSize = 25, players) => async (dispatch) => {
+export const fetchMatches = (modeType = 'all', pageNumber = 1, pageSize = 25, players, topTenFilter = false) => async (dispatch) => {
   try {
     dispatch(isFetchingMatchesAction(true));
 
-    const res = await fetch(`${apiUrl}/api/matches?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}`);
+    const res = await fetch(`${apiUrl}/api/matches?modeType=${modeType}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}&topTen=${topTenFilter}`);
     const data = await res.json();
 
-    dispatch(fetchMatchesAction(data.matches, data.totalCount, modeType, pageNumber, players));
+    dispatch(fetchMatchesAction(data.matches, data.totalCount, modeType, pageNumber, players, topTenFilter));
   } catch (e) {
     dispatch(isFetchingMatchesAction(false));
   }

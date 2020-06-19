@@ -71,6 +71,7 @@ class Matches extends Component {
       pageNumber: 1,
       pageSize: 25,
       players,
+      topTenFilter: false,
     };
   }
 
@@ -103,7 +104,12 @@ class Matches extends Component {
       tmpModeType = 'all';
     }
 
-    propsFetchMatches(tmpModeType, page, pageSize, tmpFriendsFilter);
+    let tmpTopTen = this.getFromSearchParam('topTen');
+    if (tmpTopTen === null) {
+      tmpTopTen = 'false';
+    }
+
+    propsFetchMatches(tmpModeType, page, pageSize, tmpFriendsFilter, tmpTopTen);
   }
 
   static getDerivedStateFromProps(nextProps) {
@@ -122,6 +128,7 @@ class Matches extends Component {
         modeTypeFilter: nextProps.modeType,
         pageNumber: nextProps.pageNumber,
         players: filterPlayers,
+        topTenFilter: nextProps.topTenFilter,
         totalCount: nextProps.totalCount,
       };
     }
@@ -154,6 +161,7 @@ class Matches extends Component {
     const {
       modeTypeFilter,
       pageSize,
+      topTenFilter,
     } = this.state;
 
     const {
@@ -175,7 +183,7 @@ class Matches extends Component {
       { action: 'add', param: 'filterGroup', value: event.target.value },
     ]);
 
-    propsFetchMatches(modeTypeFilter, 1, pageSize, filterGroup);
+    propsFetchMatches(modeTypeFilter, 1, pageSize, filterGroup, topTenFilter);
   }
 
   handleMatchTypeChange = (event) => {
@@ -186,6 +194,7 @@ class Matches extends Component {
     const {
       pageSize,
       players,
+      topTenFilter,
     } = this.state;
 
     const newModeType = event.target.value;
@@ -200,7 +209,33 @@ class Matches extends Component {
       { action: 'add', param: 'modeType', value: newModeType },
     ]);
 
-    propsFetchMatches(newModeType, 1, pageSize, players);
+    propsFetchMatches(newModeType, 1, pageSize, players, topTenFilter);
+  }
+
+  handleTopTenChange = (event) => {
+    const {
+      fetchMatches: propsFetchMatches,
+    } = this.props;
+
+    const {
+      modeTypeFilter,
+      pageSize,
+      players,
+    } = this.state;
+
+    const newTopTen = event.target.value === 'true';
+
+    this.setState({
+      topTenFilter: newTopTen,
+      pageNumber: 1,
+    });
+
+    this.bulkAddRemoveSearchParam([
+      { action: 'remove', param: 'page' },
+      { action: 'add', param: 'topTen', value: newTopTen },
+    ]);
+
+    propsFetchMatches(modeTypeFilter, 1, pageSize, players, newTopTen);
   }
 
   onPageChanged = (event, data) => {
@@ -212,6 +247,7 @@ class Matches extends Component {
       modeTypeFilter,
       pageSize,
       players,
+      topTenFilter,
     } = this.state;
 
     this.setState({ pageNumber: data });
@@ -220,7 +256,7 @@ class Matches extends Component {
       { action: 'add', param: 'page', value: data },
     ]);
 
-    propsFetchMatches(modeTypeFilter, data, pageSize, players);
+    propsFetchMatches(modeTypeFilter, data, pageSize, players, topTenFilter);
   }
 
   getPlacementColor = (placement) => {
@@ -419,6 +455,7 @@ class Matches extends Component {
       friendsFilter,
       pageNumber,
       pageSize,
+      topTenFilter,
     } = this.state;
 
     const {
@@ -481,6 +518,22 @@ class Matches extends Component {
                       <MenuItem value="quads">Quads</MenuItem>
                     </Select>
                   </FormControl>
+                  <FormControl
+                    variant="outlined"
+                    className={classes.formControl}
+                  >
+                    <InputLabel id="demo-simple-select-outlined-label">Top Ten</InputLabel>
+                    <Select
+                      labelId="demo-simple-select-outlined-label"
+                      id="demo-simple-select-outlined"
+                      value={topTenFilter}
+                      onChange={this.handleTopTenChange}
+                      label="topTen"
+                    >
+                      <MenuItem value="false">All</MenuItem>
+                      <MenuItem value="true">Top Ten</MenuItem>
+                    </Select>
+                  </FormControl>
                 </Grid>
               </Grid>
               {
@@ -508,6 +561,7 @@ Matches.propTypes = {
   pageNumber: PropTypes.number,
   players: PropTypes.string,
   router: PropTypes.object.isRequired,
+  topTenFilter: PropTypes.bool,
   totalCount: PropTypes.number,
   type: PropTypes.string,
 };
@@ -517,6 +571,7 @@ Matches.defaultProps = {
   modeType: 'all',
   pageNumber: 1,
   players: undefined,
+  topTenFilter: false,
   totalCount: 0,
   type: '',
 };
@@ -528,6 +583,7 @@ const mapStateToProps = (state) => (
     modeType: state.recentMatches.modeType,
     pageNumber: state.recentMatches.pageNumber,
     players: state.recentMatches.players,
+    topTenFilter: state.recentMatches.topTenFilter,
     totalCount: state.recentMatches.totalCount,
     type: state.recentMatches.type,
   }
@@ -535,8 +591,8 @@ const mapStateToProps = (state) => (
 
 const mapActions = (dispatch) => (
   {
-    fetchMatches: (modeType, pageNumber, pageSize, players) => {
-      dispatch(fetchMatches(modeType, pageNumber, pageSize, players));
+    fetchMatches: (modeType, pageNumber, pageSize, players, topTenFilter) => {
+      dispatch(fetchMatches(modeType, pageNumber, pageSize, players, topTenFilter));
     },
   }
 );
