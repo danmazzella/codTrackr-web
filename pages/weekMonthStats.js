@@ -115,6 +115,9 @@ const headCells = [
     id: 'kioskBuys', label: 'Sum Kiosk Buys', isHidden: true,
   },
   {
+    id: 'totalDowns', label: 'Sum Downs', isHidden: true,
+  },
+  {
     id: 'downsInCircleOne', label: 'Sum Downs Circle 1', isHidden: true,
   },
   {
@@ -149,6 +152,9 @@ const headCells = [
   },
   {
     id: 'killsPerGame', label: 'Kills Per Game',
+  },
+  {
+    id: 'avgDowns', label: 'Downs Per Game',
   },
   {
     id: 'deathsPerGame', label: 'Deaths Per Game',
@@ -237,6 +243,7 @@ const getTableRows = (weekMonthStats) => {
       stats.lastStandKills,
       stats.revives,
       stats.kioskBuys,
+      stats.totalDowns,
       stats.downsInCircleOne,
       stats.downsInCircleTwo,
       stats.downsInCircleThree,
@@ -249,6 +256,7 @@ const getTableRows = (weekMonthStats) => {
       (stats.avgTopFive * 100).toFixed(2).toString().concat('%'),
       calculateTimePlayed(stats.avgTimePlayed, true),
       stats.killsPerGame.toFixed(2),
+      stats.avgDowns.toFixed(2),
       stats.deathsPerGame.toFixed(2),
       stats.killDeathRatio.toFixed(2),
       stats.avgTimeMoving.toFixed(2).concat('%'),
