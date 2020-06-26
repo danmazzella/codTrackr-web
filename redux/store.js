@@ -12,6 +12,7 @@ import PlayersReducer from './reducers/players.reducers';
 import RecentMatchesReducer from './reducers/recentMatches.reducers';
 import RecentStatsReducer from './reducers/recentStats.reducers';
 import TopFiveReducer from './reducers/topFive.reducers';
+import WeekMonthStatsReducer from './reducers/weekMonthStats.reducers';
 
 
 const reducers = combineReducers({
@@ -24,6 +25,7 @@ const reducers = combineReducers({
   recentMatches: RecentMatchesReducer,
   recentStats: RecentStatsReducer,
   topFive: TopFiveReducer,
+  weekMonthStats: WeekMonthStatsReducer,
 });
 
 const initStore = (initialState = {}) => createStore(

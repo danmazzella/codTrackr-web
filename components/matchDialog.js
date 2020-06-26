@@ -26,7 +26,7 @@ import {
 } from '../redux/constants/match.constants';
 
 // Utils
-const CommonHelpers = require('../utils/commonHelpers');
+import { calculateTimePlayed, formatDate } from '../utils/commonHelpers';
 
 // Actions
 import {
@@ -42,15 +42,6 @@ const styles = (theme) => ({
     marginBottom: 10,
   },
 });
-
-const calculateTimePlayed = (timePlayedSec) => {
-  const timePlayedMin = timePlayedSec / 60;
-
-  // Format minutes
-  const timePlayedStr = `${Math.floor(timePlayedMin)} min`;
-
-  return timePlayedStr;
-};
 
 class MatchDialog extends Component {
   constructor(props) {
@@ -217,7 +208,7 @@ class MatchDialog extends Component {
                         variant="h6"
                         align="center"
                       >
-                        {CommonHelpers.formatDate(new Date(match.matchTime))}
+                        {formatDate(new Date(match.matchTime))}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -676,7 +667,7 @@ class MatchDialog extends Component {
                         variant="body1"
                         align="center"
                       >
-                        {calculateTimePlayed(matchStats.timePlayedSeconds)}
+                        {calculateTimePlayed(matchStats.timePlayedSeconds, true)}
                       </Typography>
                     </Grid>
                   </Grid>
