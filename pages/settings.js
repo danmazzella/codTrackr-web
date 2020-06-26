@@ -203,7 +203,7 @@ class Settings extends Component {
       left,
     } = this.state;
 
-    setCookie('players', right.concat(left));
+    setCookie(window.location.pathname, 'players', right.concat(left));
 
     this.setState({
       right: right.concat(left),
@@ -220,7 +220,7 @@ class Settings extends Component {
       leftChecked,
     } = this.state;
 
-    setCookie('players', right.concat(leftChecked));
+    setCookie(window.location.pathname, 'players', right.concat(leftChecked));
 
     this.setState({
       right: right.concat(leftChecked),
@@ -238,7 +238,7 @@ class Settings extends Component {
       rightChecked,
     } = this.state;
 
-    setCookie('players', not(right, rightChecked));
+    setCookie(window.location.pathname, 'players', not(right, rightChecked));
 
     this.setState({
       left: left.concat(rightChecked),

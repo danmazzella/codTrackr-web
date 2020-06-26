@@ -20,6 +20,7 @@ import Typography from '@material-ui/core/Typography';
 
 // Utils
 import { getCookie } from '../utils/cookie';
+import { calculateTimePlayed } from '../utils/commonHelpers';
 
 // Components
 import Layout from '../components/layout';
@@ -63,32 +64,6 @@ const headCells = [
     id: 'timePlayed', label: 'Time Played (Hr)',
   },
 ];
-
-const calculateTimePlayed = (timePlayedSec) => {
-  const timePlayedMin = timePlayedSec / 60;
-  const timePlayedHr = timePlayedMin / 60;
-
-  let timePlayedStr;
-  if (timePlayedHr >= 24) {
-    // Format days and hours
-    const numDays = Math.floor(timePlayedHr / 24);
-    const numHours = Math.floor(timePlayedHr - (numDays * 24));
-    const dayOrDays = numDays === 1 ? 'day' : 'days';
-    const hourOrHours = numHours === 1 ? 'hour' : 'hours';
-    timePlayedStr = `${numDays} ${dayOrDays} ${numHours} ${hourOrHours}`;
-  } else if (timePlayedHr < 24) {
-    // Format hour
-    const numHours = Math.floor(timePlayedHr);
-    const numMin = Math.floor(timePlayedMin - (numHours * 60));
-    const hourOrHours = numHours === 1 ? 'hour' : 'hours';
-    timePlayedStr = `${numHours} ${hourOrHours} ${numMin} min`;
-  } else {
-    // Format minutes
-    timePlayedStr = `${Math.floor(timePlayedMin)} min`;
-  }
-
-  return timePlayedStr;
-};
 
 const getTableRows = (recentStats) => {
   const data = [];

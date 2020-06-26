@@ -67,3 +67,41 @@ export const getPlayerNames = (match) => {
 
   return playerNames.join(', ');
 };
+
+export const calculateTimePlayed = (timePlayedSec, minOnly = false) => {
+  const timePlayedMin = timePlayedSec / 60;
+  const timePlayedHr = timePlayedMin / 60;
+
+  let timePlayedStr;
+  if (timePlayedHr >= 24) {
+    // Format days and hours
+    const numDays = Math.floor(timePlayedHr / 24);
+    const numHours = Math.floor(timePlayedHr - (numDays * 24));
+    const dayOrDays = numDays === 1 ? 'day' : 'days';
+    const hourOrHours = numHours === 1 ? 'hour' : 'hours';
+    timePlayedStr = `${numDays} ${dayOrDays} ${numHours} ${hourOrHours}`;
+  } else if (timePlayedHr < 24) {
+    // Format hour
+    const numHours = Math.floor(timePlayedHr);
+    const numMin = Math.floor(timePlayedMin - (numHours * 60));
+    const hourOrHours = numHours === 1 ? 'hour' : 'hours';
+    if (minOnly) {
+      timePlayedStr = `${numMin} min`;
+    } else {
+      timePlayedStr = `${numHours} ${hourOrHours} ${numMin} min`;
+    }
+  } else {
+    // Format minutes
+    timePlayedStr = `${Math.floor(timePlayedMin)} min`;
+  }
+
+  return timePlayedStr;
+};
+
+export const normalizeMonthFilter = (value) => {
+  const split = value.split('/');
+  return {
+    month: split[0],
+    year: split[1],
+  };
+};

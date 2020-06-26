@@ -35,7 +35,7 @@ const authReducer = (state = initialState, action) => {
         isLoggedIn: true,
         user: action.payload,
       };
-      setCookie('auth', authObj);
+      setCookie(window.location.pathname, 'auth', authObj);
       return authObj;
     }
 

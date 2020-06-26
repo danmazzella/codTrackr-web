@@ -121,7 +121,7 @@ class MatchDialog extends Component {
 
 MatchDialog.propTypes = {
   headerCheckChanged: PropTypes.func.isRequired,
-  headers: PropTypes.object,
+  headers: PropTypes.array,
   modalIsClosing: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
 };

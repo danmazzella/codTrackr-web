@@ -39,10 +39,10 @@ export const fetchMatch = (gamertag, matchId) => async (dispatch) => {
   try {
     dispatch(isFetchingMatchAction(true));
 
-    const res = await fetch(`${apiUrl}/api/match/${matchId}?gamertag=${gamertag}`);
+    const res = await fetch(`${apiUrl}/api/match/${matchId}?gamertag=${encodeURIComponent(gamertag)}`);
     const data = await res.json();
 
-    dispatch(fetchMatchAction(data.match));
+    dispatch(fetchMatchAction(data.match ? data.match : {}));
   } catch (e) {
     dispatch(isFetchingMatchAction(false));
   }
