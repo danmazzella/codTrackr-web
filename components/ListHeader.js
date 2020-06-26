@@ -73,7 +73,7 @@ class ListHeader extends React.Component {
               style={this.tableCellStyle(headCell)}
             >
               <TableSortLabel
-                active={orderBy === headCell.id && headCell.sortable === true}
+                active={orderBy === headCell.id && headCell.sortable !== false}
                 direction={orderBy === headCell.id ? order : 'asc'}
                 onClick={(ev) => (
                   (headCell.sortable === true || headCell.sortable === undefined)

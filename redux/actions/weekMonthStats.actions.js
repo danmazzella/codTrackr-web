@@ -32,7 +32,7 @@ export const restoreState = (fetchWeekMonthState) => (
   }
 );
 
-export const fetchWeekMonthStats = (modeType = 'all', _monthFilter = undefined, pageNumber = 1, pageSize = 25, players) => async (dispatch) => {
+export const fetchWeekMonthStats = (modeType = 'all', _monthFilter = undefined, pageNumber = 1, pageSize = 25, players, sortColumn, sortDir) => async (dispatch) => {
   try {
     dispatch(isFetchingWeekMonthAction(true));
 
@@ -41,7 +41,7 @@ export const fetchWeekMonthStats = (modeType = 'all', _monthFilter = undefined, 
       monthFilter = JSON.stringify(monthFilter);
     }
 
-    const res = await fetch(`${apiUrl}/api/players/weekMonthStats?modeType=${modeType}&monthFilter=${monthFilter}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}`);
+    const res = await fetch(`${apiUrl}/api/players/weekMonthStats?modeType=${modeType}&monthFilter=${monthFilter}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}&sortColumn=${sortColumn}&sortDir=${sortDir}`);
     const data = await res.json();
 
     dispatch(fetchWeekMonthAction(data.players, data.totalCount, modeType, pageNumber, players));
