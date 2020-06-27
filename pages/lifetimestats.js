@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'next/router';
-import ListBody from 'mazz-react-list';
+// import ListBody from 'mazz-react-list';
 import PropTypes from 'prop-types';
 
 // Material UI Core
@@ -24,6 +24,7 @@ import { calculateTimePlayed } from '../utils/commonHelpers';
 
 // Components
 import Layout from '../components/layout';
+import ListBody from '../components/ListBody';
 import Drawer from '../components/drawer';
 
 // Constants
