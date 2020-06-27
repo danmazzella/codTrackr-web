@@ -446,7 +446,7 @@ class WeekMonthStats extends Component {
     });
   }
 
-  handleModalIsClosing = () => {
+  closeColumnSelect = () => {
     this.setState({
       openColumnSelect: false,
     });
@@ -467,6 +467,7 @@ class WeekMonthStats extends Component {
       data,
       headers,
       openColumnSelect,
+      openFilterDialog,
     } = this.state;
 
     const {
@@ -487,6 +488,7 @@ class WeekMonthStats extends Component {
                   collapsable={false}
                   headers={headers}
                   openColumnSelect={this.openColumnSelect}
+                  openFilterDialog={this.openFilterDialog}
                   toolbarName="Monthly Stats"
                   totalCount={totalCount}
                 />
@@ -495,7 +497,7 @@ class WeekMonthStats extends Component {
           </Drawer>
         </Layout>
         <ColumnSelectModal
-          modalIsClosing={() => this.handleModalIsClosing()}
+          modalIsClosing={() => this.closeColumnSelect()}
           open={openColumnSelect}
           headerCheckChanged={(header, headerIdx) => this.headerCheckChanged(header, headerIdx)}
           headers={headers}
