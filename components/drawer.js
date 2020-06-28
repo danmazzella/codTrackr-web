@@ -20,6 +20,7 @@ import Typography from '@material-ui/core/Typography';
 // Material Icons
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import DnsIcon from '@material-ui/icons/Dns';
 import EqualizerIcon from '@material-ui/icons/Equalizer';
 import FormatListNumberedIcon from '@material-ui/icons/FormatListNumbered';
 import HistoryIcon from '@material-ui/icons/History';
@@ -188,6 +189,12 @@ function MiniDrawer(props) {
             <ListItemIcon><EqualizerIcon /></ListItemIcon>
             <ListItemText
               primary="Lifetime Stats"
+            />
+          </MenuItem>
+          <MenuItem button key="Monthly_Stats" onClick={() => navigateMenu('/weekMonthStats')} selected={router.pathname === '/weekMonthStats'}>
+            <ListItemIcon><DnsIcon /></ListItemIcon>
+            <ListItemText
+              primary="Monthly Stats"
             />
           </MenuItem>
           <MenuItem button key="Recent_Stats" onClick={() => navigateMenu('/recentstats')} selected={router.pathname === '/recentstats'}>

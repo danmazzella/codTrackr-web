@@ -134,6 +134,7 @@ class ListBody extends React.Component {
       collapsable,
       collapseLayout,
       data,
+      openFilterDialog,
       headers,
       openColumnSelect,
       toolbarName,
@@ -152,6 +153,7 @@ class ListBody extends React.Component {
       <div className={classes.root}>
         <Paper className={classes.paper}>
           <ListToolbar
+            filterButton={openFilterDialog}
             toolbarName={toolbarName}
             openColumnSelect={openColumnSelect}
           />
@@ -230,6 +232,7 @@ ListBody.propTypes = {
   collapsable: PropTypes.bool,
   headers: PropTypes.array.isRequired,
   openColumnSelect: PropTypes.func,
+  openFilterDialog: PropTypes.func,
   toolbarName: PropTypes.string.isRequired,
   totalCount: PropTypes.number.isRequired,
 };
@@ -238,6 +241,7 @@ ListBody.defaultProps = {
   collapseLayout: undefined,
   collapsable: false,
   openColumnSelect: undefined,
+  openFilterDialog: undefined,
 };
 
 export default (withStyles(styles))(ListBody);

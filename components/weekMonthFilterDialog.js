@@ -1,6 +1,5 @@
 // NPM Modules
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 // Material Core
@@ -15,8 +14,12 @@ import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
 
 // Material Icons
 import CloseIcon from '@material-ui/icons/Close';
@@ -24,6 +27,7 @@ import CloseIcon from '@material-ui/icons/Close';
 // Constants
 
 // Utils
+import { getMonthFilters } from '../utils/commonHelpers';
 
 // Actions
 
@@ -36,11 +40,12 @@ const styles = (theme) => ({
   },
 });
 
-class ColumnSelectDialog extends Component {
+class WeekMonthFilterDialog extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+    };
   }
 
   handleClose = () => {
@@ -53,10 +58,18 @@ class ColumnSelectDialog extends Component {
 
   render() {
     const {
-      headerCheckChanged,
-      headers,
+      monthFilter,
+    } = this.props;
+
+    console.log('month: ', monthFilter);
+
+    const {
+      classes,
+      handleMonthFilterChanged,
       open,
     } = this.props;
+
+    const monthFilterData = getMonthFilters();
 
     return (
       <Dialog
@@ -73,7 +86,7 @@ class ColumnSelectDialog extends Component {
             alignItems="center"
           >
             <Grid item>
-              Select Columns
+              Filters
             </Grid>
             <Grid item>
               <IconButton
@@ -89,46 +102,43 @@ class ColumnSelectDialog extends Component {
             </Grid>
           </Grid>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent style={{ marginBottom: 20 }}>
           <Grid
             container
             direction="column"
           >
-            {
-              headers.map((header, headerIdx) => (
-                <FormControlLabel
-                  key={header.label}
-                  control={(
-                    <Checkbox
-                      checked={!header.isHidden}
-                      onChange={(checked) => {
-                        return headerCheckChanged(header, headerIdx, checked.target.checked);
-                      }}
-                      name={header.label}
-                      color="primary"
-                    />
-                  )}
-                  label={header.label}
-                />
-              ))
-            }
+            <FormControl
+              variant="outlined"
+              className={classes.formControl}
+            >
+              <InputLabel id="demo-simple-select-outlined-label">Month</InputLabel>
+              <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={monthFilter}
+                onChange={handleMonthFilterChanged}
+                label="monthFilter"
+              >
+                {monthFilterData.map((monthData) => (<MenuItem key={`${monthData.month}/${monthData.year}`} value={`${monthData.month}/${monthData.year}`}>{monthData.monthName}</MenuItem>))}
+              </Select>
+            </FormControl>
           </Grid>
         </DialogContent>
-      </Dialog >
+      </Dialog>
     );
   }
 }
 
-ColumnSelectDialog.propTypes = {
-  headerCheckChanged: PropTypes.func.isRequired,
-  headers: PropTypes.array,
+WeekMonthFilterDialog.propTypes = {
+  classes: PropTypes.object.isRequired,
+  handleMonthFilterChanged: PropTypes.func.isRequired,
   modalIsClosing: PropTypes.func.isRequired,
+  monthFilter: PropTypes.string.isRequired,
   open: PropTypes.bool.isRequired,
 };
 
-ColumnSelectDialog.defaultProps = {
-  headers: [],
+WeekMonthFilterDialog.defaultProps = {
 };
 
 
-export default withStyles(styles)(ColumnSelectDialog);
+export default withStyles(styles)(WeekMonthFilterDialog);

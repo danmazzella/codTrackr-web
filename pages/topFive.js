@@ -25,7 +25,7 @@ import Pagination from '@material-ui/lab/Pagination';
 
 // Utils
 import { getCookie } from '../utils/cookie';
-import { calculateTimePlayed, normalizeMonthFilter } from '../utils/commonHelpers';
+import { calculateTimePlayed, getMonthFilters, normalizeMonthFilter } from '../utils/commonHelpers';
 
 // Components
 import Layout from '../components/layout';
@@ -279,46 +279,6 @@ class TopFive extends Component {
     }
 
     return placementStyle;
-  }
-
-  getMonthFilters = () => {
-    const startMonth = 3;
-    const startYear = 2020;
-
-    const currentMonth = new Date().getMonth() + 1;
-    const currentYear = new Date().getFullYear();
-
-    let tmpMonth = startMonth;
-    let tmpYear = startYear;
-
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-    const monthsArr = [{
-      month: -1,
-      year: -1,
-      monthName: 'All',
-    }];
-    let current = false;
-
-    do {
-      monthsArr.push({
-        month: tmpMonth,
-        year: tmpYear,
-        monthName: `${monthNames[tmpMonth - 1]}-${tmpYear}`,
-      });
-
-      if (tmpMonth === currentMonth && tmpYear === currentYear) {
-        current = true;
-      }
-
-      tmpMonth += 1;
-      if (tmpMonth > 12) {
-        tmpMonth = 1;
-        tmpYear += 1;
-      }
-    }
-    while (current === false);
-
-    return monthsArr.reverse();
   }
 
   handleModalIsOpening = (gamertag, matchId) => {
@@ -576,7 +536,7 @@ class TopFive extends Component {
       totalCount,
     } = this.props;
 
-    const monthFilterData = this.getMonthFilters();
+    const monthFilterData = getMonthFilters();
 
     return (
       <div>

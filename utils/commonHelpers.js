@@ -105,3 +105,43 @@ export const normalizeMonthFilter = (value) => {
     year: split[1],
   };
 };
+
+export const getMonthFilters = () => {
+  const startMonth = 3;
+  const startYear = 2020;
+
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+
+  let tmpMonth = startMonth;
+  let tmpYear = startYear;
+
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+  const monthsArr = [{
+    month: -1,
+    year: -1,
+    monthName: 'All',
+  }];
+  let current = false;
+
+  do {
+    monthsArr.push({
+      month: tmpMonth,
+      year: tmpYear,
+      monthName: `${monthNames[tmpMonth - 1]}-${tmpYear}`,
+    });
+
+    if (tmpMonth === currentMonth && tmpYear === currentYear) {
+      current = true;
+    }
+
+    tmpMonth += 1;
+    if (tmpMonth > 12) {
+      tmpMonth = 1;
+      tmpYear += 1;
+    }
+  }
+  while (current === false);
+
+  return monthsArr.reverse();
+}
