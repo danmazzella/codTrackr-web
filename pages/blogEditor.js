@@ -76,16 +76,17 @@ class BlogEditor extends Component {
   clickedCreateBlogPost() {
     const {
       author,
-      imageUrl,
-      title,
       content,
+      imageUrl,
+      password,
+      title,
     } = this.state;
 
     const {
       createBlogPost: propsCreateBlogPost,
     } = this.props;
 
-    propsCreateBlogPost(author, imageUrl, title, content);
+    propsCreateBlogPost(author, imageUrl, title, content, password);
   }
 
 
@@ -144,11 +145,22 @@ class BlogEditor extends Component {
                       }}
                     />
                     <TextField
-                      required
                       id="outlined-required"
                       label="Header Image"
                       variant="outlined"
                       onChange={(e) => this.setState({ imageUrl: e.target.value })}
+                      style={{
+                        width: '100%',
+                        marginTop: 10,
+                        marginBottom: 20,
+                      }}
+                    />
+                    <TextField
+                      required
+                      id="outlined-required"
+                      label="Password"
+                      variant="outlined"
+                      onChange={(e) => this.setState({ password: e.target.value })}
                       style={{
                         width: '100%',
                         marginTop: 10,
@@ -207,8 +219,8 @@ const mapStateToProps = (state) => (
 
 const mapActions = (dispatch) => (
   {
-    createBlogPost: (author, headerImage, title, content) => {
-      dispatch(createBlogPost(author, headerImage, title, content));
+    createBlogPost: (author, headerImage, title, content, password) => {
+      dispatch(createBlogPost(author, headerImage, title, content, password));
     },
   }
 );
