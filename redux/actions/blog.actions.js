@@ -61,13 +61,14 @@ export const fetchBlogPosts = () => async (dispatch) => {
   }
 };
 
-export const createBlogPost = (author, headerImage, title, content) => async (dispatch) => {
+export const createBlogPost = (author, headerImage, title, content, password) => async (dispatch) => {
   try {
     dispatch(isCreatingBlogPostAction(true));
 
     const res = await fetch(`${apiUrl}/api/blog/post`, {
       method: 'POST',
       headers: {
+        Authorization: password,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

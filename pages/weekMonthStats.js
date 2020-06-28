@@ -496,11 +496,6 @@ class WeekMonthStats extends Component {
       pageNumber: 1,
     });
 
-    console.log('Set monthFilter: ', newMonthEv.target.value);
-
-    // propsFetchTopFive(
-    //   modeTypeFilter, normalizeMonthFilter(event.target.value), 1, pageSize, filterGroup,
-    // );
     propsFetchWeekMonthStats(modeType, normalizeMonthFilter(newMonthEv.target.value), 1, pageSize, players, sortColumn, sortDir);
   }
 
@@ -516,8 +511,6 @@ class WeekMonthStats extends Component {
     const {
       totalCount,
     } = this.props;
-
-    console.log('Render Month: ', monthFilter);
 
     return (
       <div>

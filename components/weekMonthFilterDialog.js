@@ -61,8 +61,6 @@ class WeekMonthFilterDialog extends Component {
       monthFilter,
     } = this.props;
 
-    console.log('month: ', monthFilter);
-
     const {
       classes,
       handleMonthFilterChanged,
