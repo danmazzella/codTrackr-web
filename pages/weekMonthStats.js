@@ -38,6 +38,7 @@ import {
 
 // Dialogs
 import ColumnSelectModal from '../components/columnSelectDialog';
+import FilterDialogModal from '../components/weekMonthFilterDialog';
 
 const styles = (theme) => ({
   formControl: {
@@ -299,6 +300,7 @@ class WeekMonthStats extends Component {
       headers: headCells,
       monthFilter: `${thisMonth}/${thisYear}`,
       openColumnSelect: false,
+      openFilterDialog: false,
       pageNumber: 1,
       pageSize: 25,
       players,
@@ -418,6 +420,7 @@ class WeekMonthStats extends Component {
     } = this.state;
 
     this.setState({ pageNumber: newPageNumber + 1 });
+
     propsFetchWeekMonthStats(modeType, normalizeMonthFilter(monthFilter), newPageNumber + 1, pageSize, players, sortColumn, sortDir);
   }
 
@@ -437,6 +440,7 @@ class WeekMonthStats extends Component {
     this.setState({
       pageSize: newPageSize,
     });
+
     propsFetchWeekMonthStats(modeType, normalizeMonthFilter(monthFilter), 1, newPageSize, players, sortColumn, sortDir);
   }
 
@@ -452,6 +456,18 @@ class WeekMonthStats extends Component {
     });
   }
 
+  openFilterDialog = () => {
+    this.setState({
+      openFilterDialog: true,
+    });
+  }
+
+  closeFilterDialog = () => {
+    this.setState({
+      openFilterDialog: false,
+    });
+  }
+
   headerCheckChanged = (header, headerIdx) => {
     const { headers: stateHeaders } = this.state;
     stateHeaders[headerIdx].isHidden = !stateHeaders[headerIdx].isHidden;
@@ -462,10 +478,37 @@ class WeekMonthStats extends Component {
     setCookie(window.location.pathname, 'columns-week-month', lzStringCompress.compressToEncodedURIComponent(stringHeaders));
   }
 
+  handleMonthFilterChanged = (newMonthEv) => {
+    const {
+      modeType,
+      pageSize,
+      players,
+      sortColumn,
+      sortDir,
+    } = this.state;
+
+    const {
+      fetchWeekMonthStats: propsFetchWeekMonthStats,
+    } = this.props;
+
+    this.setState({
+      monthFilter: newMonthEv.target.value,
+      pageNumber: 1,
+    });
+
+    console.log('Set monthFilter: ', newMonthEv.target.value);
+
+    // propsFetchTopFive(
+    //   modeTypeFilter, normalizeMonthFilter(event.target.value), 1, pageSize, filterGroup,
+    // );
+    propsFetchWeekMonthStats(modeType, normalizeMonthFilter(newMonthEv.target.value), 1, pageSize, players, sortColumn, sortDir);
+  }
+
   render() {
     const {
       data,
       headers,
+      monthFilter,
       openColumnSelect,
       openFilterDialog,
     } = this.state;
@@ -473,6 +516,8 @@ class WeekMonthStats extends Component {
     const {
       totalCount,
     } = this.props;
+
+    console.log('Render Month: ', monthFilter);
 
     return (
       <div>
@@ -501,6 +546,12 @@ class WeekMonthStats extends Component {
           open={openColumnSelect}
           headerCheckChanged={(header, headerIdx) => this.headerCheckChanged(header, headerIdx)}
           headers={headers}
+        />
+        <FilterDialogModal
+          handleMonthFilterChanged={(newMonthEv) => this.handleMonthFilterChanged(newMonthEv)}
+          modalIsClosing={() => this.closeFilterDialog()}
+          monthFilter={monthFilter}
+          open={openFilterDialog}
         />
       </div>
     );
