@@ -3,8 +3,12 @@ import cookie from 'js-cookie';
 export const setCookie = (path, key, value) => {
   if (process.browser) {
     cookie.set(key, value, {
-      path,
+      path: '/',
     });
+
+    // FIXME: Temp just because I was adding cookies by the path at one point
+    // And it doesn't work with React because it only worked on hard refresh
+    cookie.remove(key, { path });
   }
 };
 

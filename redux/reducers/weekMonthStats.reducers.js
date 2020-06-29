@@ -22,6 +22,7 @@ const fetchWeekMonthReducer = (state = initialState, action) => {
         isFetching: false,
         weekMonthStats: action.payload,
         modeType: action.modeType,
+        monthFilter: action.monthFilter,
         pageNumber: parseInt(action.pageNumber, 10),
         players: action.players,
         totalCount: action.totalCount,

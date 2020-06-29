@@ -58,12 +58,16 @@ class WeekMonthFilterDialog extends Component {
 
   render() {
     const {
+      modeTypeFilter,
       monthFilter,
+      playerFilter,
     } = this.props;
 
     const {
       classes,
+      handleMatchTypeChanged,
       handleMonthFilterChanged,
+      handlePlayerFilterChanged,
       open,
     } = this.props;
 
@@ -108,6 +112,7 @@ class WeekMonthFilterDialog extends Component {
             <FormControl
               variant="outlined"
               className={classes.formControl}
+              style={{ marginTop: 12, marginBottom: 12 }}
             >
               <InputLabel id="demo-simple-select-outlined-label">Month</InputLabel>
               <Select
@@ -120,6 +125,43 @@ class WeekMonthFilterDialog extends Component {
                 {monthFilterData.map((monthData) => (<MenuItem key={`${monthData.month}/${monthData.year}`} value={`${monthData.month}/${monthData.year}`}>{monthData.monthName}</MenuItem>))}
               </Select>
             </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControl}
+              style={{ marginTop: 12, marginBottom: 12 }}
+            >
+              <InputLabel id="demo-simple-select-outlined-label">Player Filter</InputLabel>
+              <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={playerFilter}
+                onChange={handlePlayerFilterChanged}
+                label="playerFilter"
+              >
+                <MenuItem value="friends">Friends</MenuItem>
+                <MenuItem value="all">Everyone</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControl}
+              style={{ marginTop: 12, marginBottom: 12 }}
+            >
+              <InputLabel id="demo-simple-select-outlined-label">Match Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={modeTypeFilter}
+                onChange={handleMatchTypeChanged}
+                label="matchType"
+              >
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="solos">Solos</MenuItem>
+                <MenuItem value="duos">Duos</MenuItem>
+                <MenuItem value="threes">Threes</MenuItem>
+                <MenuItem value="quads">Quads</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
         </DialogContent>
       </Dialog>
@@ -129,10 +171,14 @@ class WeekMonthFilterDialog extends Component {
 
 WeekMonthFilterDialog.propTypes = {
   classes: PropTypes.object.isRequired,
+  handleMatchTypeChanged: PropTypes.func.isRequired,
   handleMonthFilterChanged: PropTypes.func.isRequired,
+  handlePlayerFilterChanged: PropTypes.func.isRequired,
   modalIsClosing: PropTypes.func.isRequired,
+  modeTypeFilter: PropTypes.string.isRequired,
   monthFilter: PropTypes.string.isRequired,
   open: PropTypes.bool.isRequired,
+  playerFilter: PropTypes.string.isRequired,
 };
 
 WeekMonthFilterDialog.defaultProps = {

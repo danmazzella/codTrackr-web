@@ -7,14 +7,15 @@ if (process.env.NODE_ENV === 'development') {
   apiUrl = config.dev.api.url;
 }
 
-export const fetchWeekMonthAction = (weekMonth, totalCount, modeType, pageNumber, players) => {
+export const fetchWeekMonthAction = (weekMonth, totalCount, modeType, monthFilter, pageNumber, players) => {
   return {
     modeType,
-    type: FETCH_WEEK_MONTH_STATS,
+    monthFilter,
     pageNumber,
     payload: weekMonth,
-    totalCount,
     players,
+    totalCount,
+    type: FETCH_WEEK_MONTH_STATS,
   };
 };
 
@@ -44,7 +45,7 @@ export const fetchWeekMonthStats = (modeType = 'all', _monthFilter = undefined, 
     const res = await fetch(`${apiUrl}/api/players/weekMonthStats?modeType=${modeType}&monthFilter=${monthFilter}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}&sortColumn=${sortColumn}&sortDir=${sortDir}`);
     const data = await res.json();
 
-    dispatch(fetchWeekMonthAction(data.players, data.totalCount, modeType, pageNumber, players));
+    dispatch(fetchWeekMonthAction(data.players, data.totalCount, modeType, monthFilter, pageNumber, players));
   } catch (e) {
     dispatch(isFetchingWeekMonthAction(false));
   }

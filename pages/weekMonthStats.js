@@ -10,17 +10,11 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Container from '@material-ui/core/Container';
-import FormControl from '@material-ui/core/FormControl';
-import Grid from '@material-ui/core/Grid';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import Typography from '@material-ui/core/Typography';
 
 // Material UI Icons
 
 // Utils
-import { getCookie, setCookie, removeCookie } from '../utils/cookie';
+import { getCookie, setCookie } from '../utils/cookie';
 import { calculateTimePlayed, normalizeMonthFilter } from '../utils/commonHelpers';
 
 // Components
@@ -298,11 +292,13 @@ class WeekMonthStats extends Component {
     this.state = {
       data: [],
       headers: headCells,
+      modeType: 'all',
       monthFilter: `${thisMonth}/${thisYear}`,
       openColumnSelect: false,
       openFilterDialog: false,
       pageNumber: 1,
       pageSize: 25,
+      playerFilter: 'friends',
       players,
       sortColumn: 'avgOcaScore',
       sortDir: 'desc',
@@ -323,17 +319,37 @@ class WeekMonthStats extends Component {
       sortDir,
     } = this.state;
 
+    let tmpFriendsFilter = this.getFromSearchParam('filterGroup');
+    if (tmpFriendsFilter === null || tmpFriendsFilter === 'friends') {
+      tmpFriendsFilter = players;
+    } else if (tmpFriendsFilter === 'all') {
+      tmpFriendsFilter = undefined;
+    }
+
+    let tmpModeType = this.getFromSearchParam('matchType');
+    if (tmpModeType === null || tmpModeType === undefined) {
+      tmpModeType = 'all';
+    }
+
+    let tmpMonthFilter = this.getFromSearchParam('monthFilter');
+    if (tmpMonthFilter === null || tmpMonthFilter === undefined) {
+      tmpMonthFilter = monthFilter;
+    }
+
     let page = this.getFromSearchParam('page');
     if (page === null) {
       page = pageNumber;
     }
 
-    let tmpModeType = this.getFromSearchParam('modeType');
-    if (tmpModeType === null || tmpModeType === undefined) {
-      tmpModeType = 'br';
-    }
-
-    propsFetchWeekMonthStats(tmpModeType, normalizeMonthFilter(monthFilter), page, pageSize, players, sortColumn, sortDir);
+    propsFetchWeekMonthStats(
+      tmpModeType,
+      normalizeMonthFilter(tmpMonthFilter),
+      page,
+      pageSize,
+      tmpFriendsFilter,
+      sortColumn,
+      sortDir,
+    );
   }
 
   static getDerivedStateFromProps(nextProps) {
@@ -343,17 +359,43 @@ class WeekMonthStats extends Component {
       const compressedCookieHeaders = getCookie('columns-week-month');
       let tmpHeaders = headCells;
       if (compressedCookieHeaders !== undefined && compressedCookieHeaders !== null) {
-        const stringCookieHeaders = lzStringCompress.decompressFromEncodedURIComponent(compressedCookieHeaders);
+        const stringCookieHeaders = lzStringCompress
+          .decompressFromEncodedURIComponent(compressedCookieHeaders);
         tmpHeaders = JSON.parse(stringCookieHeaders);
       }
+
+      let tmpFriendsFilter = 'friends';
+      let filterPlayers = nextProps.players;
+      if (nextProps.players === undefined) {
+        tmpFriendsFilter = 'all';
+        filterPlayers = undefined;
+      }
+
+      const thisDate = new Date();
+      const thisMonth = thisDate.getMonth() + 1;
+      const thisYear = thisDate.getFullYear();
+      let tmpMonthFilter = `${thisMonth}/${thisYear}`;
+      if (nextProps.monthFilter !== undefined) {
+        try {
+          const jsonMonthFilter = JSON.parse(nextProps.monthFilter);
+          tmpMonthFilter = `${jsonMonthFilter.month}/${jsonMonthFilter.year}`;
+        } catch (err) {
+          console.err('Invalid JSON Month'); // eslint-disable-line no-console
+        }
+      }
+
 
       return {
         data,
         headers: tmpHeaders,
         isFetching: nextProps.isFetching,
-        weekMonthStats: nextProps.weekMonthStats,
-        totalCount: nextProps.totalCount,
+        modeType: nextProps.modeType,
         modeTypeFilter: nextProps.modeType,
+        monthFilter: tmpMonthFilter,
+        playerFilter: tmpFriendsFilter,
+        players: filterPlayers,
+        totalCount: nextProps.totalCount,
+        weekMonthStats: nextProps.weekMonthStats,
       };
     }
     return {};
@@ -365,23 +407,19 @@ class WeekMonthStats extends Component {
     return jsonParams.get(paramName);
   }
 
-  addToSearchParam(paramName, paramValue) {
+  bulkAddRemoveSearchParam = (actions) => {
     const {
       router,
     } = this.props;
 
     const currentUrlParams = new URLSearchParams(window.location.search);
-    currentUrlParams.set(paramName, paramValue);
-    router.push(`${window.location.pathname}?${currentUrlParams.toString()}`);
-  }
-
-  removeFromSearchParam(paramName) {
-    const {
-      router,
-    } = this.props;
-
-    const currentUrlParams = new URLSearchParams(window.location.search);
-    currentUrlParams.delete(paramName);
+    actions.forEach((action) => {
+      if (action.action === 'remove') {
+        currentUrlParams.delete(action.param);
+      } else if (action.action === 'add') {
+        currentUrlParams.set(action.param, action.value);
+      }
+    });
     router.push(`${window.location.pathname}?${currentUrlParams.toString()}`);
   }
 
@@ -402,7 +440,15 @@ class WeekMonthStats extends Component {
       sortColumn: newSortColumn,
       sortDir: newSortDir,
     });
-    propsFetchWeekMonthStats(modeType, normalizeMonthFilter(monthFilter), pageNumber, pageSize, players, newSortColumn, newSortDir);
+    propsFetchWeekMonthStats(
+      modeType,
+      normalizeMonthFilter(monthFilter),
+      pageNumber,
+      pageSize,
+      players,
+      newSortColumn,
+      newSortDir,
+    );
   }
 
   handlePageChange = (newPageNumber) => {
@@ -421,7 +467,15 @@ class WeekMonthStats extends Component {
 
     this.setState({ pageNumber: newPageNumber + 1 });
 
-    propsFetchWeekMonthStats(modeType, normalizeMonthFilter(monthFilter), newPageNumber + 1, pageSize, players, sortColumn, sortDir);
+    propsFetchWeekMonthStats(
+      modeType,
+      normalizeMonthFilter(monthFilter),
+      newPageNumber + 1,
+      pageSize,
+      players,
+      sortColumn,
+      sortDir,
+    );
   }
 
   handlePageSizeChange = (newPageSize) => {
@@ -441,7 +495,15 @@ class WeekMonthStats extends Component {
       pageSize: newPageSize,
     });
 
-    propsFetchWeekMonthStats(modeType, normalizeMonthFilter(monthFilter), 1, newPageSize, players, sortColumn, sortDir);
+    propsFetchWeekMonthStats(
+      modeType,
+      normalizeMonthFilter(monthFilter),
+      1,
+      newPageSize,
+      players,
+      sortColumn,
+      sortDir,
+    );
   }
 
   openColumnSelect = () => {
@@ -478,6 +540,40 @@ class WeekMonthStats extends Component {
     setCookie(window.location.pathname, 'columns-week-month', lzStringCompress.compressToEncodedURIComponent(stringHeaders));
   }
 
+  handleMatchTypeChanged = (ev) => {
+    const {
+      monthFilter,
+      pageSize,
+      players,
+      sortColumn,
+      sortDir,
+    } = this.state;
+
+    const {
+      fetchWeekMonthStats: propsFetchWeekMonthStats,
+    } = this.props;
+
+    this.setState({
+      modeType: ev.target.value,
+      pageNumber: 1,
+    });
+
+    this.bulkAddRemoveSearchParam([
+      { action: 'remove', param: 'page' },
+      { action: 'add', param: 'matchType', value: ev.target.value },
+    ]);
+
+    propsFetchWeekMonthStats(
+      ev.target.value,
+      normalizeMonthFilter(monthFilter),
+      1,
+      pageSize,
+      players,
+      sortColumn,
+      sortDir,
+    );
+  }
+
   handleMonthFilterChanged = (newMonthEv) => {
     const {
       modeType,
@@ -496,16 +592,70 @@ class WeekMonthStats extends Component {
       pageNumber: 1,
     });
 
-    propsFetchWeekMonthStats(modeType, normalizeMonthFilter(newMonthEv.target.value), 1, pageSize, players, sortColumn, sortDir);
+    this.bulkAddRemoveSearchParam([
+      { action: 'remove', param: 'page' },
+      { action: 'add', param: 'monthFilter', value: newMonthEv.target.value },
+    ]);
+
+    propsFetchWeekMonthStats(
+      modeType,
+      normalizeMonthFilter(newMonthEv.target.value),
+      1,
+      pageSize,
+      players,
+      sortColumn,
+      sortDir,
+    );
+  }
+
+  handlePlayerFilterChanged = (event) => {
+    const {
+      modeType,
+      monthFilter,
+      pageSize,
+      sortColumn,
+      sortDir,
+    } = this.state;
+
+    const {
+      fetchWeekMonthStats: propsFetchWeekMonthStats,
+    } = this.props;
+
+    this.setState({
+      playerFilter: event.target.value,
+      pageNumber: 1,
+    });
+
+    let filterGroup = getCookie('players');
+    if (event.target.value === 'all') {
+      filterGroup = undefined;
+    }
+
+    this.bulkAddRemoveSearchParam([
+      { action: 'remove', param: 'page' },
+      { action: 'add', param: 'filterGroup', value: event.target.value },
+    ]);
+
+    propsFetchWeekMonthStats(
+      modeType,
+      normalizeMonthFilter(monthFilter),
+      1,
+      pageSize,
+      filterGroup,
+      sortColumn,
+      sortDir,
+    );
   }
 
   render() {
     const {
       data,
       headers,
+      modeType,
       monthFilter,
       openColumnSelect,
       openFilterDialog,
+      playerFilter,
     } = this.state;
 
     const {
@@ -541,9 +691,13 @@ class WeekMonthStats extends Component {
           headers={headers}
         />
         <FilterDialogModal
+          handleMatchTypeChanged={(ev) => this.handleMatchTypeChanged(ev)}
           handleMonthFilterChanged={(newMonthEv) => this.handleMonthFilterChanged(newMonthEv)}
+          handlePlayerFilterChanged={(ev) => this.handlePlayerFilterChanged(ev)}
           modalIsClosing={() => this.closeFilterDialog()}
+          modeTypeFilter={modeType}
           monthFilter={monthFilter}
+          playerFilter={playerFilter}
           open={openFilterDialog}
         />
       </div>
@@ -552,11 +706,12 @@ class WeekMonthStats extends Component {
 }
 
 WeekMonthStats.propTypes = {
-  classes: PropTypes.object.isRequired,
   fetchWeekMonthStats: PropTypes.func.isRequired,
   isFetching: PropTypes.bool.isRequired,
   weekMonthStats: PropTypes.array,
   modeType: PropTypes.string,
+  monthFilter: PropTypes.string,
+  players: PropTypes.string,
   router: PropTypes.object.isRequired,
   totalCount: PropTypes.number,
   type: PropTypes.string,
@@ -564,7 +719,9 @@ WeekMonthStats.propTypes = {
 
 WeekMonthStats.defaultProps = {
   weekMonthStats: [],
-  modeType: 'br',
+  modeType: 'all',
+  monthFilter: '',
+  players: undefined,
   totalCount: 0,
   type: '',
 };
@@ -574,6 +731,8 @@ const mapStateToProps = (state) => (
     isFetching: state.weekMonthStats.isFetching,
     weekMonthStats: state.weekMonthStats.weekMonthStats,
     modeType: state.weekMonthStats.modeType,
+    monthFilter: state.weekMonthStats.monthFilter,
+    players: state.weekMonthStats.players,
     totalCount: state.weekMonthStats.totalCount,
     type: state.weekMonthStats.type,
   }
@@ -581,8 +740,12 @@ const mapStateToProps = (state) => (
 
 const mapActions = (dispatch) => (
   {
-    fetchWeekMonthStats: (modeType, monthFilter, pageNumber, pageSize, sortColumn, sortDir, players) => {
-      dispatch(fetchWeekMonthStats(modeType, monthFilter, pageNumber, pageSize, sortColumn, sortDir, players));
+    fetchWeekMonthStats: (
+      modeType, monthFilter, pageNumber, pageSize, sortColumn, sortDir, players,
+    ) => {
+      dispatch(fetchWeekMonthStats(
+        modeType, monthFilter, pageNumber, pageSize, sortColumn, sortDir, players,
+      ));
     },
   }
 );
