@@ -106,7 +106,7 @@ class Matches extends Component {
 
     let tmpTopTen = this.getFromSearchParam('topTen');
     if (tmpTopTen === null) {
-      tmpTopTen = 'false';
+      tmpTopTen = false;
     }
 
     propsFetchMatches(tmpModeType, page, pageSize, tmpFriendsFilter, tmpTopTen);

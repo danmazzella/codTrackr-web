@@ -342,20 +342,20 @@ class LifetimeStats extends Component {
 }
 
 LifetimeStats.propTypes = {
-  classes: PropTypes.object.isRequired,
   fetchLifetimeStats: PropTypes.func.isRequired,
   isFetching: PropTypes.bool.isRequired,
   lifetimeStats: PropTypes.array,
   modeType: PropTypes.string,
   router: PropTypes.object.isRequired,
   totalCount: PropTypes.number,
-  type: PropTypes.string.isRequired,
+  type: PropTypes.string,
 };
 
 LifetimeStats.defaultProps = {
   lifetimeStats: [],
   modeType: 'br',
   totalCount: 0,
+  type: '',
 };
 
 const mapStateToProps = (state) => (
