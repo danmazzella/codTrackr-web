@@ -300,7 +300,6 @@ class Settings extends Component {
 
   render() {
     const {
-      currentlyFetching,
       lastFetch,
       left,
       leftChecked,

@@ -1,23 +1,17 @@
 // NPM Modules
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 // Material Core
 import { withStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Grid from '@material-ui/core/Grid';
 import IconButton from '@material-ui/core/IconButton';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
-import Typography from '@material-ui/core/Typography';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 
@@ -25,11 +19,15 @@ import MenuItem from '@material-ui/core/MenuItem';
 import CloseIcon from '@material-ui/icons/Close';
 
 // Constants
+import { FETCH_PLAYERS } from '../redux/constants/players.constants';
 
 // Utils
 import { getMonthFilters } from '../utils/commonHelpers';
 
 // Actions
+import {
+  fetchPlayers,
+} from '../redux/actions/players.actions';
 
 
 const styles = (theme) => ({
@@ -48,6 +46,28 @@ class WeekMonthFilterDialog extends Component {
     };
   }
 
+  componentDidMount() {
+    const {
+      fetchPlayers: propsFetchPlayers,
+    } = this.props;
+
+    propsFetchPlayers();
+  }
+
+  static getDerivedStateFromProps(nextProps) {
+    const {
+      type,
+    } = nextProps;
+
+    if (type === FETCH_PLAYERS) {
+      return {
+        isFetching: nextProps.isFetching,
+      };
+    }
+
+    return {};
+  }
+
   handleClose = () => {
     const {
       modalIsClosing: propsModalIsClosing,
@@ -56,11 +76,26 @@ class WeekMonthFilterDialog extends Component {
     propsModalIsClosing();
   };
 
+  addPlayerItems = (players) => {
+    const menuItems = [(<MenuItem key="none" value="none">{'<None>'}</MenuItem>)];
+    players
+      .sort((playerOne, playerTwo) => {
+        if (playerOne.gamertag.toLowerCase() < playerTwo.gamertag.toLowerCase()) {
+          return -1;
+        }
+        return 1;
+      })
+      .map((player) => menuItems.push(<MenuItem key={`${player.gamertag}`} value={`${player.gamertag}`}>{player.gamertag}</MenuItem>));
+    return menuItems;
+  }
+
   render() {
     const {
       modeTypeFilter,
       monthFilter,
       playerFilter,
+      players,
+      specificPlayerFilter,
     } = this.props;
 
     const {
@@ -68,6 +103,7 @@ class WeekMonthFilterDialog extends Component {
       handleMatchTypeChanged,
       handleMonthFilterChanged,
       handlePlayerFilterChanged,
+      handleSpecificPlayerFilterChanged,
       open,
     } = this.props;
 
@@ -114,22 +150,6 @@ class WeekMonthFilterDialog extends Component {
               className={classes.formControl}
               style={{ marginTop: 12, marginBottom: 12 }}
             >
-              <InputLabel id="demo-simple-select-outlined-label">Month</InputLabel>
-              <Select
-                labelId="demo-simple-select-outlined-label"
-                id="demo-simple-select-outlined"
-                value={monthFilter}
-                onChange={handleMonthFilterChanged}
-                label="monthFilter"
-              >
-                {monthFilterData.map((monthData) => (<MenuItem key={`${monthData.month}/${monthData.year}`} value={`${monthData.month}/${monthData.year}`}>{monthData.monthName}</MenuItem>))}
-              </Select>
-            </FormControl>
-            <FormControl
-              variant="outlined"
-              className={classes.formControl}
-              style={{ marginTop: 12, marginBottom: 12 }}
-            >
               <InputLabel id="demo-simple-select-outlined-label">Player Filter</InputLabel>
               <Select
                 labelId="demo-simple-select-outlined-label"
@@ -137,6 +157,7 @@ class WeekMonthFilterDialog extends Component {
                 value={playerFilter}
                 onChange={handlePlayerFilterChanged}
                 label="playerFilter"
+                disabled={specificPlayerFilter !== 'none'}
               >
                 <MenuItem value="friends">Friends</MenuItem>
                 <MenuItem value="all">Everyone</MenuItem>
@@ -162,6 +183,39 @@ class WeekMonthFilterDialog extends Component {
                 <MenuItem value="quads">Quads</MenuItem>
               </Select>
             </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControl}
+              style={{ marginTop: 12, marginBottom: 12 }}
+            >
+              <InputLabel id="demo-simple-select-outlined-label">Month</InputLabel>
+              <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={monthFilter}
+                onChange={handleMonthFilterChanged}
+                label="monthFilter"
+                disabled={specificPlayerFilter !== 'none'}
+              >
+                {monthFilterData.map((monthData) => (<MenuItem key={`${monthData.month}/${monthData.year}`} value={`${monthData.month}/${monthData.year}`}>{monthData.monthName}</MenuItem>))}
+              </Select>
+            </FormControl>
+            <FormControl
+              variant="outlined"
+              className={classes.formControl}
+              style={{ marginTop: 12, marginBottom: 12 }}
+            >
+              <InputLabel id="demo-simple-select-outlined-label">Specific Player</InputLabel>
+              <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={specificPlayerFilter}
+                onChange={handleSpecificPlayerFilterChanged}
+                label="specificPlayerFilter"
+              >
+                {this.addPlayerItems(players)}
+              </Select>
+            </FormControl>
           </Grid>
         </DialogContent>
       </Dialog>
@@ -171,18 +225,40 @@ class WeekMonthFilterDialog extends Component {
 
 WeekMonthFilterDialog.propTypes = {
   classes: PropTypes.object.isRequired,
+  fetchPlayers: PropTypes.func.isRequired,
   handleMatchTypeChanged: PropTypes.func.isRequired,
   handleMonthFilterChanged: PropTypes.func.isRequired,
   handlePlayerFilterChanged: PropTypes.func.isRequired,
+  handleSpecificPlayerFilterChanged: PropTypes.func.isRequired,
+  isFetching: PropTypes.bool.isRequired,
   modalIsClosing: PropTypes.func.isRequired,
   modeTypeFilter: PropTypes.string.isRequired,
   monthFilter: PropTypes.string.isRequired,
   open: PropTypes.bool.isRequired,
   playerFilter: PropTypes.string.isRequired,
+  players: PropTypes.array.isRequired,
+  specificPlayerFilter: PropTypes.string,
+  type: PropTypes.string.isRequired,
 };
 
 WeekMonthFilterDialog.defaultProps = {
+  specificPlayerFilter: 'none',
 };
 
+const mapStateToProps = (state) => (
+  {
+    isFetching: state.players.isFetching,
+    players: state.players.players,
+    type: state.players.type,
+  }
+);
 
-export default withStyles(styles)(WeekMonthFilterDialog);
+const mapActions = (dispatch) => (
+  {
+    fetchPlayers: () => {
+      dispatch(fetchPlayers());
+    },
+  }
+);
+
+export default connect(mapStateToProps, mapActions)(withStyles(styles)(WeekMonthFilterDialog));

@@ -47,7 +47,7 @@ const styles = (theme) => ({
 
 const headCells = [
   {
-    id: 'gamertag', label: 'Gamertag',
+    id: 'playerName', label: 'Gamertag',
   },
   {
     id: 'gamesPlayed', label: '# Games Played',
@@ -213,11 +213,11 @@ const headCells = [
   },
 ];
 
-const getTableRows = (weekMonthStats) => {
+const getTableRows = (weekMonthStats, singlePlayer) => {
   const data = [];
   weekMonthStats.map((stats) => {
     const rowData = [
-      stats.playerName,
+      singlePlayer === 'none' ? stats.playerName : `${stats.month}/${stats.year}`,
       stats.gamesPlayed,
       calculateTimePlayed(stats.timePlayed),
       stats.totalPlacements,
@@ -302,6 +302,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn: 'avgOcaScore',
       sortDir: 'desc',
+      specificPlayerFilter: 'none',
     };
   }
 
@@ -317,6 +318,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     } = this.state;
 
     let tmpFriendsFilter = this.getFromSearchParam('filterGroup');
@@ -341,6 +343,11 @@ class WeekMonthStats extends Component {
       page = pageNumber;
     }
 
+    let tmpSpecificPlayer = this.getFromSearchParam('specificPlayer');
+    if (tmpSpecificPlayer === null) {
+      tmpSpecificPlayer = specificPlayerFilter;
+    }
+
     propsFetchWeekMonthStats(
       tmpModeType,
       normalizeMonthFilter(tmpMonthFilter),
@@ -349,11 +356,12 @@ class WeekMonthStats extends Component {
       tmpFriendsFilter,
       sortColumn,
       sortDir,
+      tmpSpecificPlayer,
     );
   }
 
   static getDerivedStateFromProps(nextProps) {
-    const data = getTableRows(nextProps.weekMonthStats);
+    const data = getTableRows(nextProps.weekMonthStats, nextProps.specificPlayerFilter);
 
     if (nextProps.type === FETCH_WEEK_MONTH_STATS) {
       const compressedCookieHeaders = getCookie('columns-week-month');
@@ -362,6 +370,15 @@ class WeekMonthStats extends Component {
         const stringCookieHeaders = lzStringCompress
           .decompressFromEncodedURIComponent(compressedCookieHeaders);
         tmpHeaders = JSON.parse(stringCookieHeaders);
+      }
+
+      // tmpHeaders if date
+      if (nextProps.specificPlayerFilter !== 'none') {
+        tmpHeaders[0].id = 'monthYear';
+        tmpHeaders[0].label = 'Date';
+      } else {
+        tmpHeaders[0].id = 'playerName';
+        tmpHeaders[0].label = 'Gamertag';
       }
 
       let tmpFriendsFilter = 'friends';
@@ -394,6 +411,7 @@ class WeekMonthStats extends Component {
         monthFilter: tmpMonthFilter,
         playerFilter: tmpFriendsFilter,
         players: filterPlayers,
+        specificPlayerFilter: nextProps.specificPlayerFilter,
         totalCount: nextProps.totalCount,
         weekMonthStats: nextProps.weekMonthStats,
       };
@@ -434,12 +452,14 @@ class WeekMonthStats extends Component {
       pageNumber,
       pageSize,
       players,
+      specificPlayerFilter,
     } = this.state;
 
     this.setState({
       sortColumn: newSortColumn,
       sortDir: newSortDir,
     });
+
     propsFetchWeekMonthStats(
       modeType,
       normalizeMonthFilter(monthFilter),
@@ -448,6 +468,7 @@ class WeekMonthStats extends Component {
       players,
       newSortColumn,
       newSortDir,
+      specificPlayerFilter,
     );
   }
 
@@ -463,6 +484,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     } = this.state;
 
     this.setState({ pageNumber: newPageNumber + 1 });
@@ -475,6 +497,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     );
   }
 
@@ -485,6 +508,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     } = this.state;
 
     const {
@@ -503,6 +527,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     );
   }
 
@@ -547,6 +572,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     } = this.state;
 
     const {
@@ -571,6 +597,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     );
   }
 
@@ -581,6 +608,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     } = this.state;
 
     const {
@@ -605,6 +633,7 @@ class WeekMonthStats extends Component {
       players,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     );
   }
 
@@ -615,6 +644,7 @@ class WeekMonthStats extends Component {
       pageSize,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     } = this.state;
 
     const {
@@ -644,8 +674,58 @@ class WeekMonthStats extends Component {
       filterGroup,
       sortColumn,
       sortDir,
+      specificPlayerFilter,
     );
   }
+
+  handleSpecificPlayerFilterChanged = (event) => {
+    const {
+      modeType,
+      monthFilter,
+      pageSize,
+      players,
+      sortColumn,
+      sortDir,
+    } = this.state;
+
+    const {
+      fetchWeekMonthStats: propsFetchWeekMonthStats,
+    } = this.props;
+
+    let tmpSpecificPlayer;
+    let tmpSortColumn = sortColumn;
+    let tmpSortDir = sortDir;
+    if (event.target.value !== 'none') {
+      tmpSpecificPlayer = event.target.value;
+      tmpSortColumn = 'monthYear';
+      tmpSortDir = 'desc';
+    } else {
+      tmpSpecificPlayer = undefined;
+    }
+
+    this.setState({
+      sortColumn: tmpSortColumn,
+      sortDir: tmpSortDir,
+      specificPlayerFilter: tmpSpecificPlayer,
+      pageNumber: 1,
+    });
+
+    this.bulkAddRemoveSearchParam([
+      { action: 'remove', param: 'page' },
+      { action: 'add', param: 'specificPlayer', value: tmpSpecificPlayer },
+    ]);
+
+    propsFetchWeekMonthStats(
+      modeType,
+      normalizeMonthFilter(monthFilter),
+      1,
+      pageSize,
+      players,
+      tmpSortColumn,
+      tmpSortDir,
+      tmpSpecificPlayer,
+    );
+  };
 
   render() {
     const {
@@ -656,6 +736,7 @@ class WeekMonthStats extends Component {
       openColumnSelect,
       openFilterDialog,
       playerFilter,
+      specificPlayerFilter,
     } = this.state;
 
     const {
@@ -694,11 +775,13 @@ class WeekMonthStats extends Component {
           handleMatchTypeChanged={(ev) => this.handleMatchTypeChanged(ev)}
           handleMonthFilterChanged={(newMonthEv) => this.handleMonthFilterChanged(newMonthEv)}
           handlePlayerFilterChanged={(ev) => this.handlePlayerFilterChanged(ev)}
+          handleSpecificPlayerFilterChanged={(ev) => this.handleSpecificPlayerFilterChanged(ev)}
           modalIsClosing={() => this.closeFilterDialog()}
           modeTypeFilter={modeType}
           monthFilter={monthFilter}
-          playerFilter={playerFilter}
           open={openFilterDialog}
+          playerFilter={playerFilter}
+          specificPlayerFilter={specificPlayerFilter}
         />
       </div>
     );
@@ -713,6 +796,7 @@ WeekMonthStats.propTypes = {
   monthFilter: PropTypes.string,
   players: PropTypes.string,
   router: PropTypes.object.isRequired,
+  specificPlayerFilter: PropTypes.string,
   totalCount: PropTypes.number,
   type: PropTypes.string,
 };
@@ -722,6 +806,7 @@ WeekMonthStats.defaultProps = {
   modeType: 'all',
   monthFilter: '',
   players: undefined,
+  specificPlayerFilter: 'none',
   totalCount: 0,
   type: '',
 };
@@ -733,6 +818,7 @@ const mapStateToProps = (state) => (
     modeType: state.weekMonthStats.modeType,
     monthFilter: state.weekMonthStats.monthFilter,
     players: state.weekMonthStats.players,
+    specificPlayerFilter: state.weekMonthStats.specificPlayerFilter,
     totalCount: state.weekMonthStats.totalCount,
     type: state.weekMonthStats.type,
   }
@@ -741,10 +827,10 @@ const mapStateToProps = (state) => (
 const mapActions = (dispatch) => (
   {
     fetchWeekMonthStats: (
-      modeType, monthFilter, pageNumber, pageSize, sortColumn, sortDir, players,
+      modeType, monthFilter, pageNumber, pageSize, players, sortColumn, sortDir, specificPlayerFilter,
     ) => {
       dispatch(fetchWeekMonthStats(
-        modeType, monthFilter, pageNumber, pageSize, sortColumn, sortDir, players,
+        modeType, monthFilter, pageNumber, pageSize, players, sortColumn, sortDir, specificPlayerFilter,
       ));
     },
   }

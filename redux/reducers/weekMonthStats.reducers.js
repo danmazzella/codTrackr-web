@@ -25,6 +25,7 @@ const fetchWeekMonthReducer = (state = initialState, action) => {
         monthFilter: action.monthFilter,
         pageNumber: parseInt(action.pageNumber, 10),
         players: action.players,
+        specificPlayerFilter: action.specificPlayerFilter,
         totalCount: action.totalCount,
         type: FETCH_WEEK_MONTH_STATS,
       };

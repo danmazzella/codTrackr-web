@@ -7,13 +7,14 @@ if (process.env.NODE_ENV === 'development') {
   apiUrl = config.dev.api.url;
 }
 
-export const fetchWeekMonthAction = (weekMonth, totalCount, modeType, monthFilter, pageNumber, players) => {
+export const fetchWeekMonthAction = (weekMonth, totalCount, modeType, monthFilter, pageNumber, players, specificPlayerFilter) => {
   return {
     modeType,
     monthFilter,
     pageNumber,
     payload: weekMonth,
     players,
+    specificPlayerFilter,
     totalCount,
     type: FETCH_WEEK_MONTH_STATS,
   };
@@ -33,7 +34,7 @@ export const restoreState = (fetchWeekMonthState) => (
   }
 );
 
-export const fetchWeekMonthStats = (modeType = 'all', _monthFilter = undefined, pageNumber = 1, pageSize = 25, players, sortColumn, sortDir) => async (dispatch) => {
+export const fetchWeekMonthStats = (modeType = 'all', _monthFilter = undefined, pageNumber = 1, pageSize = 25, players, sortColumn, sortDir, specificPlayerFilter) => async (dispatch) => {
   try {
     dispatch(isFetchingWeekMonthAction(true));
 
@@ -42,10 +43,10 @@ export const fetchWeekMonthStats = (modeType = 'all', _monthFilter = undefined, 
       monthFilter = JSON.stringify(monthFilter);
     }
 
-    const res = await fetch(`${apiUrl}/api/players/weekMonthStats?modeType=${modeType}&monthFilter=${monthFilter}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}&sortColumn=${sortColumn}&sortDir=${sortDir}`);
+    const res = await fetch(`${apiUrl}/api/players/weekMonthStats?modeType=${modeType}&monthFilter=${monthFilter}&page=${pageNumber}&pageSize=${pageSize}&players=${encodeURIComponent(players)}&sortColumn=${sortColumn}&sortDir=${sortDir}&singlePlayer=${encodeURIComponent(specificPlayerFilter)}`);
     const data = await res.json();
 
-    dispatch(fetchWeekMonthAction(data.players, data.totalCount, modeType, monthFilter, pageNumber, players));
+    dispatch(fetchWeekMonthAction(data.players, data.totalCount, modeType, monthFilter, pageNumber, players, specificPlayerFilter));
   } catch (e) {
     dispatch(isFetchingWeekMonthAction(false));
   }
