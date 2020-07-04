@@ -15,7 +15,7 @@ import Container from '@material-ui/core/Container';
 
 // Utils
 import { getCookie, setCookie } from '../utils/cookie';
-import { calculateTimePlayed, normalizeMonthFilter } from '../utils/commonHelpers';
+import { calculateTimePlayed, getMonthFilters, normalizeMonthFilter } from '../utils/commonHelpers';
 
 // Components
 import Layout from '../components/layout';
@@ -213,6 +213,8 @@ const headCells = [
   },
 ];
 
+const monthFilterData = getMonthFilters();
+
 const getTableRows = (weekMonthStats, singlePlayer) => {
   const data = [];
   weekMonthStats.map((stats) => {
@@ -289,11 +291,15 @@ class WeekMonthStats extends Component {
     const thisMonth = thisDate.getMonth() + 1;
     const thisYear = thisDate.getFullYear();
 
+    const monthIndex = monthFilterData.findIndex((month) => `${month.month}/${month.year}` === `${thisMonth}/${thisYear}`);
+    const { monthName } = monthFilterData[monthIndex];
+
     this.state = {
       data: [],
       headers: headCells,
       modeType: 'all',
       monthFilter: `${thisMonth}/${thisYear}`,
+      monthName,
       openColumnSelect: false,
       openFilterDialog: false,
       pageNumber: 1,
@@ -344,7 +350,7 @@ class WeekMonthStats extends Component {
     }
 
     let tmpSpecificPlayer = this.getFromSearchParam('specificPlayer');
-    if (tmpSpecificPlayer === null) {
+    if (tmpSpecificPlayer === null || tmpSpecificPlayer === undefined || tmpSpecificPlayer === 'undefined') {
       tmpSpecificPlayer = specificPlayerFilter;
     }
 
@@ -392,10 +398,14 @@ class WeekMonthStats extends Component {
       const thisMonth = thisDate.getMonth() + 1;
       const thisYear = thisDate.getFullYear();
       let tmpMonthFilter = `${thisMonth}/${thisYear}`;
+      let monthIndex = monthFilterData.findIndex((month) => `${month.month}/${month.year}` === `${thisMonth}/${thisYear}`);
+      let { monthName } = monthFilterData[monthIndex];
       if (nextProps.monthFilter !== undefined) {
         try {
           const jsonMonthFilter = JSON.parse(nextProps.monthFilter);
           tmpMonthFilter = `${jsonMonthFilter.month}/${jsonMonthFilter.year}`;
+          monthIndex = monthFilterData.findIndex((month) => `${month.month}/${month.year}` === `${jsonMonthFilter.month}/${jsonMonthFilter.year}`);
+          ({ monthName } = monthFilterData[monthIndex]);
         } catch (err) {
           console.err('Invalid JSON Month'); // eslint-disable-line no-console
         }
@@ -409,6 +419,7 @@ class WeekMonthStats extends Component {
         modeType: nextProps.modeType,
         modeTypeFilter: nextProps.modeType,
         monthFilter: tmpMonthFilter,
+        monthName,
         playerFilter: tmpFriendsFilter,
         players: filterPlayers,
         specificPlayerFilter: nextProps.specificPlayerFilter,
@@ -615,8 +626,12 @@ class WeekMonthStats extends Component {
       fetchWeekMonthStats: propsFetchWeekMonthStats,
     } = this.props;
 
+    const monthIndex = monthFilterData.findIndex((month) => `${month.month}/${month.year}` === newMonthEv.target.value);
+    const { monthName } = monthFilterData[monthIndex];
+
     this.setState({
       monthFilter: newMonthEv.target.value,
+      monthName,
       pageNumber: 1,
     });
 
@@ -733,6 +748,7 @@ class WeekMonthStats extends Component {
       headers,
       modeType,
       monthFilter,
+      monthName,
       openColumnSelect,
       openFilterDialog,
       playerFilter,
@@ -758,7 +774,7 @@ class WeekMonthStats extends Component {
                   headers={headers}
                   openColumnSelect={this.openColumnSelect}
                   openFilterDialog={this.openFilterDialog}
-                  toolbarName="Monthly Stats"
+                  toolbarName={`Monthly Stats - ${specificPlayerFilter !== 'none' ? specificPlayerFilter : monthName}`}
                   totalCount={totalCount}
                 />
               </Box>

@@ -193,11 +193,18 @@ class WeekMonthFilterDialog extends Component {
                 labelId="demo-simple-select-outlined-label"
                 id="demo-simple-select-outlined"
                 value={monthFilter}
-                onChange={handleMonthFilterChanged}
+                onChange={(ev) => handleMonthFilterChanged(ev)}
                 label="monthFilter"
                 disabled={specificPlayerFilter !== 'none'}
               >
-                {monthFilterData.map((monthData) => (<MenuItem key={`${monthData.month}/${monthData.year}`} value={`${monthData.month}/${monthData.year}`}>{monthData.monthName}</MenuItem>))}
+                {monthFilterData.map((monthData) => (
+                  <MenuItem
+                    key={`${monthData.month}/${monthData.year}`}
+                    value={`${monthData.month}/${monthData.year}`}
+                  >
+                    {monthData.monthName}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             <FormControl
