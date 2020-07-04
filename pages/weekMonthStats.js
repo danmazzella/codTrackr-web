@@ -763,7 +763,7 @@ class WeekMonthStats extends Component {
       <div>
         <Layout>
           <Drawer>
-            <Container maxWidth="lg">
+            <Container maxWidth="false">
               <Box my={4}>
                 <ListBody
                   data={data}
