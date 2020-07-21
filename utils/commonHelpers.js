@@ -144,4 +144,4 @@ export const getMonthFilters = () => {
   while (current === false);
 
   return monthsArr.reverse();
-}
+};

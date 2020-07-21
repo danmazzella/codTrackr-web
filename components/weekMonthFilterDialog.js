@@ -78,14 +78,16 @@ class WeekMonthFilterDialog extends Component {
 
   addPlayerItems = (players) => {
     const menuItems = [(<MenuItem key="none" value="none">{'<None>'}</MenuItem>)];
-    players
-      .sort((playerOne, playerTwo) => {
-        if (playerOne.gamertag.toLowerCase() < playerTwo.gamertag.toLowerCase()) {
-          return -1;
-        }
-        return 1;
-      })
-      .map((player) => menuItems.push(<MenuItem key={`${player.gamertag}`} value={`${player.gamertag}`}>{player.gamertag}</MenuItem>));
+    if (players !== undefined) {
+      players
+        .sort((playerOne, playerTwo) => {
+          if (playerOne.gamertag.toLowerCase() < playerTwo.gamertag.toLowerCase()) {
+            return -1;
+          }
+          return 1;
+        })
+        .map((player) => menuItems.push(<MenuItem key={`${player.gamertag}`} value={`${player.gamertag}`}>{player.gamertag}</MenuItem>));
+    }
     return menuItems;
   }
 
