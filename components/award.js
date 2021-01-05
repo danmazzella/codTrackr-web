@@ -9,6 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import InfoIcon from '@material-ui/icons/Info';
 import { Typography } from '@material-ui/core';
+import { calculateTimePlayed } from '../utils/commonHelpers';
 
 const styles = (theme) => ({
   root: {
@@ -79,7 +80,7 @@ class Award extends React.Component {
                 {
                   highest.map((data) => (
                     <Grid item key={`${data.player}`}>
-                      {`${data.player} - ${data.data.toFixed(2)}`}
+                      {name === 'timePlayed' ? `${data.player} - ${calculateTimePlayed(data.data)}` : `${data.player} - ${data.data.toFixed(2)}`}
                     </Grid>
                   ))
                 }
@@ -100,7 +101,7 @@ class Award extends React.Component {
                 {
                   average.map((data) => (
                     <Grid item key={`${data.player}`}>
-                      {`${data.player} - ${data.data.toFixed(2)}`}
+                      {name === 'timePlayed' ? `${data.player} - ${calculateTimePlayed(data.data, true)}` : `${data.player} - ${data.data.toFixed(2)}`}
                     </Grid>
                   ))
                 }
