@@ -114,11 +114,19 @@ class ListBody extends React.Component {
     return {};
   }
 
-  addRowData = (row, index, headers) => (
-    <TableCell component="th" scope="row" key={`${row}-${index}`} style={this.tableCellStyle(row, index, headers)}>
-      {row}
-    </TableCell>
-  );
+  addRowData = (row, index, columnIdx, headers) => {
+    return (
+      <TableCell
+        component="th"
+        scope="row"
+        key={`${row}-${index}`}
+        style={this.tableCellStyle(row, columnIdx, headers)}
+        onClick={() => this.props.cellClick(row, index, columnIdx)}
+      >
+        {row}
+      </TableCell>
+    );
+  };
 
   render() {
     const {
@@ -134,9 +142,9 @@ class ListBody extends React.Component {
       collapsable,
       collapseLayout,
       data,
-      openFilterDialog,
       headers,
       openColumnSelect,
+      openFilterDialog,
       toolbarName,
     } = this.props;
 
@@ -174,11 +182,14 @@ class ListBody extends React.Component {
                   data.map((row, index) => [
                     <TableRow
                       hover
+                      style={{ cursor: 'pointer' }}
                       onClick={() => this
                         .setState({ collapsedRow: collapsedRow === index ? null : index })}
-                      key={row[0].concat(index)}
+                      key={'Row-'.concat(row[0].concat(index))}
                     >
-                      {row.map((rowData, rowIdx) => this.addRowData(rowData, rowIdx, headers))}
+                      {
+                        row.map((rowData, columnIdx) => this.addRowData(rowData, index, columnIdx, headers))
+                      }
                     </TableRow>,
                     (
                       collapsable ? (
@@ -216,8 +227,8 @@ class ListBody extends React.Component {
             onChangePage={this.handleChangePage}
             onChangeRowsPerPage={this.handleChangeRowsPerPage}
           />
-        </Paper>
-      </div>
+        </Paper >
+      </div >
     );
   }
 }
@@ -225,6 +236,7 @@ class ListBody extends React.Component {
 ListBody.propTypes = {
   classes: PropTypes.object.isRequired,
   data: PropTypes.array.isRequired,
+  cellClick: PropTypes.func,
   changePage: PropTypes.func.isRequired,
   changePageSize: PropTypes.func.isRequired,
   changeSort: PropTypes.func.isRequired,
@@ -238,6 +250,7 @@ ListBody.propTypes = {
 };
 
 ListBody.defaultProps = {
+  cellClick: () => { },
   collapseLayout: undefined,
   collapsable: false,
   openColumnSelect: undefined,

@@ -167,7 +167,7 @@ function MiniDrawer(props) {
         </div>
         <Divider />
         <MenuList>
-          <MenuItem button key="Blog" onClick={() => navigateMenu('/')} selected={router.pathname === '/'}>
+          <MenuItem button key="Blog" onClick={() => navigateMenu('/blog')} selected={router.pathname === '/blog'}>
             <ListItemIcon><MenuBookIcon /></ListItemIcon>
             <ListItemText
               primary="Blog"
@@ -179,7 +179,7 @@ function MiniDrawer(props) {
               primary="Community Posts"
             />
           </MenuItem>
-          <MenuItem button key="Recent_Matches" onClick={() => navigateMenu('/matches')} selected={router.pathname === '/matches'}>
+          <MenuItem button key="Recent_Matches" onClick={() => navigateMenu('/')} selected={router.pathname === '/'}>
             <ListItemIcon><SportsEsportsIcon /></ListItemIcon>
             <ListItemText
               primary="Recent Matches"
