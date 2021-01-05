@@ -4,6 +4,7 @@ import thunkMiddleware from 'redux-thunk';
 import logger from 'redux-logger';
 
 import AuthReducer from './reducers/auth.reducers';
+import AwardsReducer from './reducers/awards.reducers';
 import BlogReducer from './reducers/blog.reducers';
 import CommunityPostsReducer from './reducers/communityPosts.reducers';
 import LifetimeStatsReducer from './reducers/lifetimeStats.reducers';
@@ -17,6 +18,7 @@ import WeekMonthStatsReducer from './reducers/weekMonthStats.reducers';
 
 const reducers = combineReducers({
   auth: AuthReducer,
+  awards: AwardsReducer,
   blog: BlogReducer,
   communityPosts: CommunityPostsReducer,
   lifetimeStats: LifetimeStatsReducer,
