@@ -1,10 +1,10 @@
 module.exports = {
   production: {
     api: {
-      url: 'http://ocatrackr-api.themazzellas.com',
+      url: 'http://api.ocaclan.com',
     },
     socket: {
-      url: 'http://ocatrackr-socket.themazzellas.com',
+      url: 'http://socket.ocaclan.com',
     },
   },
   dev: {
